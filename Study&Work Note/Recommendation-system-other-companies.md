@@ -1,4 +1,4 @@
-#  companies's recommendation system
+#  other companies's recommendation system
 
 ## Naver AiTEMS
 [Naver Shopping's rec sys](https://13.209.180.197/blog/274/): Topic Modeling + Embedding(연관도 분석)
