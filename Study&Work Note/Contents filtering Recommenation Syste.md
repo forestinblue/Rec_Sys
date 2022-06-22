@@ -36,3 +36,47 @@
     : 1. 사전 지역 선택 추천 알고리즘(가능)
       2. 고객이 최근에 (방문한 or 검색한) 식당과 유사한 식당 추천 
        (리뷰 별로, 카테고리 & 평점 별로, 카테고리 별로)
+       
+ ### 컨텐츠 기반 필터링 프로세스(순서 과정)
+
+    1. 컨텐츠 내용의 ‘텍스트’, BOW(Bag of Words) or Word Embedding 방식으로 Feature Vectorization
+    2. 컨텐츠의 Feature 벡터간에 Distance Fuction 
+    → Hamming distance, Eucludien distance, Cosine distance, KL Divergence, Malarobis Distance
+    3. 유사도 행렬과 별개로, 또 다른 파생 변수로 컨텐츠에 대한 고객들의 평점 갯수와 평점을 이용해 가중 평점을 계산한다. 이 파생 변수는 컨텐츠 성격에 맞게 유동적으로 변경할 수 있다. 
+    4. 특정 컨텐츠를 기준으로 그 컨텐츠와 유사도, 가중 평균이 가중 높은 순으로 정렬한 후, 컨텐츠를 추천해준다.
+       
+ ### Sklearn 자연어 특징 추출
+
+    - CounterVectorizer: 각 텍스트에서 단어 출현 횟수를 카운팅한 벡터 (문서 단위, 문장 단위, 단어 단위)
+    단점: 조사, 지시대명사는 카운팅에서 높은 횟수 but, 실질적 의미는 없다. → 별로 좋지 않는 형태가 만들어지다. → (보완) TF-IDF
+    - TfidfVectorizer
+        - TF-IDF: TF와 IDF를 곱한 값
+        즉, TF가 높고,  DF가 낮을 수록 값이 커지는 것을 이용하다.
+        → 해당 문장안에서는 많이 등장하지만 다른 문서들까지 전체에서는 적게 사용될 수록 분별력 있는 특징 증가한다.
+            - TF(Team Frequency): 특정 단어가 하나의 데이터 안에서 등장하는 횟수
+            - DF(Document Frequency): 특정 단어가 여러 데이터에 자주 등장하는지 알려주는 지표
+            - IDF(Inverse Document Frequency): DF에 역수를 취해 (inverse) 구함
+        - TF-IDF Parameter
+            - min-df: DF의 최소 빈도값 설정 , DF는 특정 단어가 나타나는 문서 수 
+            ex) min-df = 2 , output = ‘go’, ‘home’, ‘my’
+            - analyzer: 학습 단위를 결정하는 parameter
+            -  학습단위 : ‘word’ ex) ‘go’ , ‘home’ , ‘my’
+            -  학습단위 : ‘char’ ex) a , b, c, d
+            - ngram-range: (n-gram: 단어의 묶음)
+            -   n-gram_range = (1,1)  ex) (’back’, 0), (’go’, 2), (’is’, 4)
+            -   n-gram_range = (1,2)  ex) (’go back’ , 5), (’back to’, 1), (’back’, 0), very good, very bad 같이 묶어야 의미가 살아나는 단어가 있어서 사용하다
+            - sublinear_tf: TF(단어 빈도)값이 스무딩 여부 결정 (True / False) → TF값에 대해 아웃라이어 처리를 해준다.
+            - max-features: tf-idf vector의 최대 feature를 설정
+        - Hashing Vectorizer: CounterVectorizer에서 해시 함수를 사용하여 속도를 높임
+        
+        
+        
+ ### Clustering Distance Function   종류
+
+    **데이터 간 거리를 ‘어떤 방법’으로 계산하는지?** 
+
+    - Euclidean distance: 단어의 빈도수 계산 → 비효율적인 방법 → NLP에서 사용 적다
+    - cosine similarity: 두 벡터들 사이의 각도를 계산, 벡터 크기는 무시하고 방향 차이만 계산한다. → NLP(자연어 처리)에서 주로 사용한다. 
+    단점: 상호관계를 갖는 Features들을 지니고 있는 데이터들간의 유사도는 계산을 잘하지 못한다.
+    - Hamming Distance: 한 문자열을 다른 문자열로 바꾸기 위해 몇개의 글자를 바꿔주어야 하는지에 대한 계산 방법
+    - KL(Kullback-Leibler Diverge): 두 확률 분포의 차이를 계산하는 방식(차이는 실제 거리를 의미하지 않는다.) 예측 확률 entropy에서 실제 확률 entropy를 빼주어 구하다. 예측 확률이 실제와 가까울 수록 0에 가까워진다.
