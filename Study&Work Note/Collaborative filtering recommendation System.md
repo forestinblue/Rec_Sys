@@ -45,6 +45,85 @@
     
     BASELINEONLY (als)의 rmse: 0.76601
     
+  ### KNN
+
+    - 최근접 이웃 기간 - 유사도 계산
+        - 평균 제곱 차이 유사도 MSD : 유클리드 공간 거리 제곱 비례
+        - 코사인 유사도 : 두 특성 벡터의 각도에 대한 코사인 값
+        - 피어슨 유사도 : 두 벡터의 상관계수
+        - 피어슨 - 베이스라인 유사도: 피어슨 유사도처럼 상관계수 구하지만, 각 벡터의 기댓값은 단순 평균이 아닌 베이스 모형에서 예측한 값 사용
+    - KNN 가중치 예측 방법
+        - KNN Basic: 평점들을 단순히 가중 평균
+        - KNN with Means: 평점들을 평균값 기준으로 가중 평균
+        - KNN Baseline: 평점들을 베이스라인 모형 값 기준으로 가중 평균
+
+
+### baseline only
+
+    1) als 방식 장점 : 복잡한 함수를 쉽게 빠르게 구하다 
+
+    2) SGD 방식: gradient descent 방법
+
+    장점: 미분 가능하다면 꽤 그럴싸한 정답 제공
+
+    단점: training 시간이 비교적 길다.
+
+    - baselineonly의 option
+        - ALS option
+
+             - reg_i : 상품에 대한 정규화 가중치 , 디폴트 값: 10
+
+             - reg_u : 사용자에 대한 정규화 가중치, 디폴트 값: 15
+
+             - n_epochs : 반복 횟수 , 디폴트 값: 15 
+            ex) 1 - epoch : 모델이 전체 데이터를 한번 보다
+
+        - SGD option
+
+             - reg : 정규화 가중치 , 디폴트 값: 0.02
+
+             - learning rate: 최적화 스텝 사이즈 , 디폴트 값: 0.005
+
+             - n_epochs: 최적화 반복횟수 , 디폴트 값: 20
+
+
+### Matrxi Factorizion
+
+    - SVD options
+        - n_factors : 차원의 개수, 디폴트 값: 100
+        - n_epochs : 최적화 반복횟수, 디폴트 값: 20
+    - SVDpp options
+        - n_factors 디폴트 값: 20
+        - n_epochs  디폴트 값: 20
+    - NMF options
+        - n_factors 디폴트 값: 15
+        - n_epochs  디폴트 값: 50
+
+### 추천 성능 평가 기준
+
+    - RMSE(Root Mean Squared Error): 잔차를 제곱하고 다 더한 후 루트 씌우다, 값이 작을 수록 좋다.
+    장점: 큰 오류값 차이에 대해 크게 패널티를 준다, MAE에 비해 직관성은 떨어지지만 극단적이지 않다.
+    - MAE(Mean Absolute Error): 잔차값(예측값과 실제값의 차이를 절대값 취하고 평균을 낸 것)
+    - FCP(Fraction of Concordant Pairs): 평점이 아닌 사용자별 선호도 랭킹 기반 계산식
+
+
+
+### Surprise Library 추천 알고리즘
+
+    - Random Predict: Normal Predictor → 정규분포 가정한 평점분포에서 랜덤하게 샘플링 → 최대가능도 방법 이용(maximum Likelihood), 평균과 표준편차 구하다.
+    - KNN 알고리즘
+        - KNN Basic: 기본적인 협업 필터링 알고리즘
+        - KNN with Means: 기본적인 협업 필터링 알고리즘  + 평균값을 더해준다.
+        - KNN with Zscore: 기본적인 협업 필터링 알고리즘  + z-score 분포를 적용한다.
+        - KNN Baseline: 기본적인 협업 필터링 알고리즘  + Baseline을 더해준다.
+    - Matrix Factorization 알고리즘
+        - SVD: 특이값 분해 알고리즘
+        - SVD++: 특이값 분해 알고리즘에 추가적으로 암시적 rating이 더해진다.
+        - NMF: Non-Negative 행렬분해, 음수를 포함하지 않는 행렬 X를 음수를 포함하지 않는 W와 H의 곱을 분해하는 알고리즘 
+        유용한 점: 데이터가 non-negative일때 non-negative-feaure 설명하는게 좋다.
+    - Baseline Only: User와 Item의 Baseline이용한 평점 예측 알고리즘
+
+    
  ### 밀리언 데이터에 적용했을 때 문제점 & 해결 방법
     
     - 문제점: 전국적인 식당 평점 데이터가 적다. 반면 춘천 식당 데이터는 풍부하다. 데이터가 편중되었다. 
